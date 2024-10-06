@@ -1,0 +1,29 @@
+<div class="admin__fieldset">
+    <div class="admin__field">
+        <div class="admin__field-label">Custom Field</div>
+        <div class="admin__field-control">
+            <input class="admin__control-text" data-form-part="upsage_ticker_form" type="text" name="content2" value="">
+        </div>
+    </div>
+</div>
+
+<div id="folderTree11" style=""></div>
+
+<script>
+
+ require(["jquery", "jquery/jstree/jquery.jstree"], function ($, jstree) {
+    
+  $(function () {
+   $('#folderTree11').jstree({ 'core' : {
+    'data' : [
+       { "id" : "1", "parent" : "#", "text" : "Simple root node" },
+       { "id" : "2", "parent" : "#", "text" : "Root node 2" },
+       { "id" : "3", "parent" : "2", "text" : "Child 1" },
+       { "id" : "4", "parent" : "2", "text" : "Child 2" },
+    ]
+   }});
+  });
+
+});
+
+</script>

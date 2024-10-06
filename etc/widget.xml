@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget_file.xsd">
+    <widget id="upsage_ticker_widget" class="UpSage\Ticker\Block\Widget\Ticker">
+        <label translate="true">Insert Ticker</label>
+        <description>Inserts ticker data from the custom CRUD module</description>
+        <parameters>
+            <parameter name="ticker_id" xsi:type="block" visible="true" required="true">
+                <label>Select Ticker</label>
+                <block class="UpSage\Ticker\Block\Adminhtml\Ticker\Widget\Chooser">
+                    <data>
+                        <item name="button" xsi:type="array">
+                            <item name="open" xsi:type="string" translate="true">Select Ticker...</item>
+                        </item>
+                    </data>
+                </block>
+            </parameter>
+            
+        </parameters>
+    </widget>
+</widgets>

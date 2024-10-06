@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <!-- Ticker Table -->
+    <table name="upsage_ticker" resource="default" engine="innodb" comment="Ticker Table">
+        <index referenceId="FTI_upsage_ticker" indexType="fulltext">
+            <column name="title"/>
+        </index>
+        <column xsi:type="int" name="ticker_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Ticker Id"/>
+        <column xsi:type="varchar" length="255" nullable="false" name="title" comment="Ticker Title"/>
+        <column xsi:type="text" nullable="false" name="content" comment="Ticker Content"/>
+        <column xsi:type="datetime" nullable="false" name="publish_date" comment="Ticker PublishDate"/>
+        <column xsi:type="text" name="dynamic_rows" nullable="true" comment="Dynamic Data"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="ticker_id"/>
+        </constraint>
+    </table>
+
+    <!-- Store Scope Table -->
+    <table name="upsage_ticker_store" resource="default" engine="innodb" comment="Ticker Store Table">
+        <column xsi:type="int" name="ticker_id" padding="10" unsigned="true" nullable="false" comment="Ticker ID"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store ID"/>
+        
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="ticker_id"/>
+            <column name="store_id"/>
+        </constraint>
+
+        <constraint xsi:type="foreign" referenceId="UPSAGE_TICKER_STORE_TICKER_ID" table="upsage_ticker_store" column="ticker_id" 
+                   referenceTable="upsage_ticker" referenceColumn="ticker_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="UPSAGE_TICKER_STORE_STORE_ID" table="upsage_ticker_store" column="store_id" 
+                   referenceTable="store" referenceColumn="store_id" onDelete="CASCADE"/>
+
+        <index referenceId="UPSAGE_TICKER_STORE_STORE_ID_IDX" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+</schema>

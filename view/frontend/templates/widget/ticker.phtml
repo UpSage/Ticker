@@ -1,0 +1,22 @@
+<?php
+
+ $ticker = $block->getTickerData();
+
+ $dataArr = $ticker['dynamic_rows'];
+ $manage = json_decode($dataArr, true);
+
+ echo json_encode($dataArr, JSON_PRETTY_PRINT);
+
+ if ($ticker): ?>
+    <div class="ticker-widget">
+        <p>ID: <?= $block->escapeHtml($ticker['ticker_id']) ?></p>
+        <h2>Title: <?= $block->escapeHtml($ticker['title']) ?></h2>
+        <p>Content: <?= $block->escapeHtml($ticker['content']) ?></p>
+        <p>Date: <?= $block->escapeHtml($ticker['publish_date']) ?></p>
+   
+    </div>
+<?php else: ?>
+    <div class="ticker-widget">
+        <p>No ticker data available.</p>
+    </div>
+<?php endif; ?>
