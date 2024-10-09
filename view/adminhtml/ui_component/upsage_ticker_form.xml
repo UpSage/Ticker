@@ -74,17 +74,30 @@
         </field>
 
         <htmlContent name="html_content">
-         <settings>
-            <additionalClasses>
-                <class name="html-content-class">true</class>
-            </additionalClasses>
-        </settings>
-        <block name="html_content_block" class="Magento\Backend\Block\Template">
-            <arguments>
-                <argument name="template" xsi:type="string">UpSage_Ticker::tree.phtml</argument>
-            </arguments>
-        </block>
-       </htmlContent>
+    <settings>
+        <additionalClasses>
+            <class name="html-content-class">true</class>
+        </additionalClasses>
+    </settings>
+    <block name="html_content_block" class="Magento\Backend\Block\Template">
+        <arguments>
+            <argument name="template" xsi:type="string">UpSage_Ticker::tree.phtml</argument>
+        </arguments>
+    </block>
+</htmlContent>
+
+<field name="jstree_data">
+    <argument name="data" xsi:type="array">
+        <item name="config" xsi:type="array">
+            <item name="dataType" xsi:type="string">text</item>
+            <item name="label" xsi:type="string" translate="true">JsTree Data</item>
+            <item name="formElement" xsi:type="string">textarea</item>
+            <item name="source" xsi:type="string">main_fieldset</item>
+            <item name="dataScope" xsi:type="string">jstree_data</item>
+            <item name="visible" xsi:type="boolean">false</item>
+        </item>
+    </argument>
+</field>
 
         
         <field name="content">
