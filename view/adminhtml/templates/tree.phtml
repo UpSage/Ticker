@@ -1,258 +1,403 @@
 <?php
-/** @var $block \Magento\Backend\Block\Template */
-?>
+  /** @var $block \Magento\Backend\Block\Template */
+  ?>
 <button id="select_all_nodes" type="button" style="margin-left: 10px; display: none;">Select All</button>
 <div id="jstree_container"></div>
 <button id="add_root_node" type="button">Add Root Node</button>
 <button id="delete_selected_nodes" type="button" style="margin-left: 10px; display: none;">Delete Selected Nodes</button>
-
-<!-- Modal for Node Details using Magento UI Component Modal -->
 <div id="url_modal" style="display:none;">
-    <div style="padding: 20px;">
-        <h2>Node Details</h2>
-        <label for="node_name">Node Name:</label>
-        <input type="text" id="node_name" value="" /><br><br>
-        
-        <label for="url_select">Select URL Type:</label>
-        <select id="url_select">
-            <option value="">Select Type</option>
-            <option value="cms_page">CMS Page</option>
-            <option value="product">Product</option>
-            <option value="category">Category</option>
-        </select><br><br>
-
-        <div id="urlInputContainer" style="display:none;">
-            <label for="urlInput">Available URLs:</label>
-            <select id="urlInput"></select>
+  <div class="page-main-actions">
+    <div class="page-actions-placeholder"></div>
+    <div class="page-actions">
+      <div class="page-actions-inner">
+        <div class="page-actions-buttons">
+          <button id="close_modal" title="Back" type="button" class="action-default scalable back">
+          <span>Back</span>
+          </button>
+          <button id="save_url" title="Save" type="button" class="action-default scalable save primary">
+          <span>Save</span>
+          </button>
         </div>
-
-        <button id="save_url" type="button" class="action-primary">Save</button>
-        <button id="close_modal" type="button" class="action-secondary">Cancel</button>
+      </div>
     </div>
+  </div>
+  <fieldset class="fieldset admin__fieldset" style="padding: 20px;">
+    <div class="admin__field field" >
+      <label class="label admin__field-label" for="node_name">
+      <span>Name</span>
+      </label>
+      <div class="admin__field-control control">
+        <input id="node_name" name="node_name"  value="" title="Name" class="input-text admin__control-text" type="text"/>
+      </div>
+    </div>
+    <div class="admin__field field">
+      <label class="label admin__field-label">
+      <span>Select URL Type:</span>
+      </label>
+      <div class="admin__field-control control">
+        <select id="url_select" title="Select URL Type" class="select admin__control-select" style="width: 100%;">
+          <option value="">Select Type</option>
+          <option value="cms_page">CMS Page</option>
+          <option value="product">Product</option>
+          <option value="category">Category</option>
+        </select>
+      </div>
+    </div>
+    <div id="urlInputContainer" class="admin__field field" style="display:none;">
+      <label class="label admin__field-label" for="search_input">
+      <span>Search Products:</span>
+      </label>
+      <div class="admin__field-control control">
+        <input id="product_search_input" class="input-text admin__control-text" placeholder="Search product or SKU..." type="text" />
+      </div>
+      <label class="label admin__field-label" for="category_search_input" style="display:none;">
+      <span>Search Categories:</span>
+      </label>
+      <div class="admin__field-control control">
+        <input id="category_search_input" class="input-text admin__control-text" placeholder="Search category..." type="text" style="display:none;" />
+      </div>
+      <label class="label admin__field-label" for="cms_search_input" style="display:none;">
+      <span>Search CMS Pages:</span>
+      </label>
+      <div class="admin__field-control control">
+        <input id="cms_search_input" class="input-text admin__control-text" placeholder="Search CMS page..." type="text" style="display:none;" />
+      </div>
+    </div>
+    <div class="admin__field field">
+      <label class="label admin__field-label" for="urlInput">
+      <span>Available URLs:</span>
+      </label>
+      <div class="admin__field-control control">
+        <select id="urlInput" title="Select URL" class="select admin__control-select" style="width: 100%;"></select>
+      </div>
+    </div>
+  </fieldset>
 </div>
-
 <script>
-require([
-    'jquery',
-    'Magento_Ui/js/modal/modal',
-    'jstree'
-], function($, modal) {
-    $(document).ready(function() {
-        var $tree = $('#jstree_container');
-        var $modal = $('#url_modal');
-        var selectedNode = null;
-        var modalOptions = {
-            type: 'popup',
-            modalClass: 'magento',
-            title: 'Edit Node',
-            buttons: []
-        };
-        modal(modalOptions, $modal);
+  require([
+   'jquery',
+   'Magento_Ui/js/modal/modal',
+   'jstree'
+  ], function($, modal) {
+    
+   $(document).ready(function() {
+  
+    var $tree = $('#jstree_container');
+    var $modal = $('#url_modal');
+    var selectedNode = null;
+    var modalOptions = {
+     type: 'slide',
+     modalClass: 'magento',
+     title: 'Edit Menu',
+     buttons: []
+    };
+  
+    modal(modalOptions, $modal);
+    
+    function initTree() {
+        
+     var treeData = JSON.parse($('textarea[name="jstree_data"]').val() || '[]');
 
-        // Initialize jstree
-        function initTree() {
-            var treeData = JSON.parse($('textarea[name="jstree_data"]').val() || '[]');
-
-            // Check if tree data is empty, add a default root node
-            if (treeData.length === 0) {
-                treeData = [{
-                    text: 'Menu <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>',
-                    children: [],
-                    data: { name: 'Menu', url: '' }
-                }];
-            }
-
-            $tree.jstree({
-                'core': {
-                    'check_callback': true,
-                    'data': treeData
-                },
-                'plugins': ['dnd', 'checkbox']
-            });
-
-            // Show/hide buttons based on node count
-            toggleButtonVisibility();
+     if (treeData.length === 0) {
+      treeData = [{
+       text: 'Menu <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>',
+       children: [],
+       data: { name: 'Menu', url: '' }
+      }];
+     }
+     
+     $tree.jstree({
+      'core': {
+       'check_callback': true,
+       'data': treeData,
+       'template': function(node) {
+         var nodeText = node.text || '';
+         return '<span class="jstree-anchor" role="treeitem" aria-selected="false">' + nodeText + '</span>';
         }
+      },
+      'plugins': [
+       'dnd',
+       'checkbox'
+      ]
+     });
+     
+     toggleButtonVisibility();
+    
+    }
+    
+    initTree();
+    
+    function toggleButtonVisibility() {
+     var nodeCount = $tree.jstree(true).get_json().length;
+     if (nodeCount === 0) {
+      $('#delete_selected_nodes').hide();
+      $('#select_all_nodes').hide();
+     } else {
+      $('#delete_selected_nodes').show();
+      $('#select_all_nodes').show();
+      updateSelectAllButtonText();
+     }
+    }
+    
+    function updateSelectAllButtonText() {
+     var allNodes = $tree.jstree(true).get_json('#', {flat: true});
+     var checkedNodes = $tree.jstree('get_checked', true);
+     $('#select_all_nodes').text(checkedNodes.length === allNodes.length ? 'Unselect All' : 'Select All');
+    }
+    
+    $('#add_root_node').on('click', function() {
 
-        initTree();
+     var newNode = {
+      text: 'Menu <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>',
+      children: [],
+      data: {
+       name: 'Menu',
+       url: ''
+      }
+     };
+     
+     $tree.jstree('create_node', null, newNode, 'last', function(new_node) {
+      updateJsTreeData();
+      toggleButtonVisibility();
+      $tree.jstree('deselect_all');
+     });
 
-        // Function to show/hide buttons based on the number of nodes
-        function toggleButtonVisibility() {
-            var nodeCount = $tree.jstree(true).get_json().length;
-            if (nodeCount === 0) {
-                $('#delete_selected_nodes').hide();
-                $('#select_all_nodes').hide();
-            } else {
-                $('#delete_selected_nodes').show();
-                $('#select_all_nodes').show();
-                // Set the text based on the checked state
-                updateSelectAllButtonText();
-            }
-        }
+    });
 
-        // Function to update Select All button text
-        function updateSelectAllButtonText() {
-            var allNodes = $tree.jstree('get_json');
-            var checkedNodes = $tree.jstree('get_checked', true);
-            $('#select_all_nodes').text(checkedNodes.length === allNodes.length ? 'Unselect All' : 'Select All');
-        }
-
-        // Add root node button click event
-        $('#add_root_node').on('click', function() {
-            var newNode = {
-                text: 'Menu <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>',
-                children: [],
-                data: { name: 'Menu', url: '' }
-            };
-
-            $tree.jstree('create_node', null, newNode, 'last', function(new_node) {
-                updateJsTreeData();
-                toggleButtonVisibility(); // Check button visibility after adding a node
-                $tree.jstree('deselect_all');
-            });
-        });
-
-        // Function to handle adding a child node
-        $(document).on('click', '.add-child-btn', function(e) {
-            e.stopPropagation(); // Prevent checkbox toggle
-            var nodeId = $(this).closest('li').attr('id');
-            selectedNode = $tree.jstree(true).get_node(nodeId);
-
-            if (selectedNode) {
-                var newChildNode = {
-                    text: 'Sub Menu <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>',
-                    children: [],
+    $('#select_all_nodes').on('click', function() {
+     var allNodes = $tree.jstree(true).get_json('#', {flat: true});
+     var checkedNodes = $tree.jstree('get_checked', true);
+     var isAllChecked = checkedNodes.length === allNodes.length;
+     if (isAllChecked) {
+      $tree.jstree('uncheck_all', true);
+     } else {
+      $tree.jstree('check_all', true);
+     }
+     updateSelectAllButtonText();
+    });
+    
+    $('#delete_selected_nodes').on('click', function() {
+     var selectedNodes = $tree.jstree('get_checked', true);
+     selectedNodes.forEach(function(node) {
+      $tree.jstree('delete_node', node);
+     });
+     updateJsTreeData();
+     toggleButtonVisibility();
+    });
+    
+    $(document).on('click', '.add-child-btn, .edit-node-btn', function(e) {
+     e.stopPropagation();
+     return false;
+    });
+    
+    $(document).on('click', '.add-child-btn', function(e) {
+     e.stopPropagation();
+     var nodeId = $(this).closest('li').attr('id');
+     selectedNode = $tree.jstree(true).get_node(nodeId);
+     if (selectedNode) {
+      var newChildNode = {
+       text: 'Sub Menu <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>',
+       children: [],
                     data: { name: 'Sub Menu', url: '' }
                 };
-
+  
                 $tree.jstree('create_node', selectedNode, newChildNode, 'last', function(newNode) {
-                    $tree.jstree('open_node', selectedNode); // Expand parent node after adding a child
+                    $tree.jstree('open_node', selectedNode);
                     updateJsTreeData();
-                    toggleButtonVisibility(); // Check button visibility after adding a node
+                    toggleButtonVisibility();
                 });
             }
         });
-
-        // Function to delete selected nodes
-        $('#delete_selected_nodes').on('click', function() {
-            var selectedNodes = $tree.jstree('get_checked', true);
-            selectedNodes.forEach(function(node) {
-                $tree.jstree('delete_node', node);
-            });
-            updateJsTreeData();
-            toggleButtonVisibility(); // Check button visibility after deletion
-        });
-
-        // Select/Deselect all nodes
-        $('#select_all_nodes').on('click', function() {
-            var allNodes = $tree.jstree('get_json');
-            var checkedNodes = $tree.jstree('get_checked', true);
-            var isAllChecked = checkedNodes.length === allNodes.length;
-
-            if (isAllChecked) {
-                $tree.jstree('uncheck_all');
-            } else {
-                $tree.jstree('check_all');
-            }
-
-            // Update button text
-            updateSelectAllButtonText();
-        });
-
-        // Function to handle edit button
+  
+        
         $(document).on('click', '.edit-node-btn', function(e) {
-            e.stopPropagation(); // Prevent checkbox toggle
+            e.stopPropagation();
             var nodeId = $(this).closest('li').attr('id');
             selectedNode = $tree.jstree(true).get_node(nodeId);
-
+  
             if (selectedNode) {
-                // Populate modal with current node data (name and url)
+                
                 $('#node_name').val(selectedNode.data.name || '');
                 $('#url_select').val(selectedNode.data.url_type || '');
-                $('#urlInputContainer').hide(); // Hide URL input initially
-
-                // Open modal
+                $('#urlInputContainer').hide();
+  
+        
                 openModal();
             }
         });
 
-        // Listen for changes to the URL type dropdown
-        $('#url_select').on('change', function() {
-            var selectedType = $(this).val();
-            if (selectedType) {
-                // Fetch URLs based on the selected type
-                $.ajax({
-                    url: 'upsage_ticker/url/fetch', // Adjust URL as per your routing
-                    type: 'POST',
-                    data: {type: selectedType},
-                    success: function(response) {
-                        // Clear the existing options
-                        $('#urlInput').empty();
-
-                        // Populate the URL input dropdown with new options
-                        $.each(response.urls, function(index, url) {
-                            $('#urlInput').append($('<option></option>').attr('value', url).text(url));
-                        });
-
-                        // Show the URL input container
-                        $('#urlInputContainer').show();
-                    },
-                    error: function() {
-                        // Handle error if needed
-                        console.error('Error fetching URLs');
-                    }
-                });
-            } else {
-                // Hide the URL input container if no type is selected
-                $('#urlInputContainer').hide();
-            }
-        });
-
-        // Save URL and Name button click event
-        $('#save_url').on('click', function() {
-            if (selectedNode) {
-                var nodeName = $('#node_name').val();
-                var selectedUrl = $('#urlInput').val();
-                
-                // Update node data and label
-                selectedNode.data.name = nodeName;
-                selectedNode.data.url = selectedUrl;
-                selectedNode.data.url_type = $('#url_select').val();
-
-                var updatedLabel = updateNodeText(nodeName, selectedUrl);
-                $tree.jstree('rename_node', selectedNode, updatedLabel + ' <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>');
-
-                closeModal();
-                updateJsTreeData();
-                toggleButtonVisibility(); // Check button visibility after editing
-            }
-        });
-
-        // Close modal button event
         $('#close_modal').on('click', function() {
             closeModal();
         });
-
-        // Function to update node text with URL
-        function updateNodeText(name, url) {
-            return url ? name + ' (' + url + ')' : name;
+  
+  
+        $('#url_select').on('change', function() {
+            var selectedType = $(this).val();
+            $('#urlInputContainer').toggle(!!selectedType);
+  
+  
+            $('#product_search_input, #category_search_input, #cms_search_input').hide();
+            if (selectedType === 'product') {
+                $('#product_search_input').show().attr('placeholder', 'Search product or SKU...');
+            } else if (selectedType === 'category') {
+                $('#category_search_input').show().attr('placeholder', 'Search category...');
+            } else if (selectedType === 'cms_page') {
+                $('#cms_search_input').show().attr('placeholder', 'Search CMS page...');
+            }
+  
+  
+            $('#urlInput').empty();
+  
+            fetchURLs(selectedType);
+        }).change();
+  
+        function fetchURLs(selectedType) {
+            var query = '';
+            switch(selectedType) {
+                case 'product':
+                    query = $('#product_search_input').val();
+                    break;
+                case 'category':
+                    query = $('#category_search_input').val();
+                    break;
+                case 'cms_page':
+                    query = $('#cms_search_input').val();
+                    break;
+            }
+  
+            $.ajax({
+                url: '<?php echo $block->getUrl("upsage_ticker/url/fetch"); ?>',
+                type: 'POST',
+                data: {
+                    type: selectedType,
+                    query: query
+                },
+                success: function(response) {
+                    switch(selectedType) {
+                        case 'category':
+                            populateCategoryDropdown(response.urls);
+                            break;
+                        case 'cms_page':
+                            populateCMSPageDropdown(response.urls);
+                            break;
+                        case 'product':
+                            populateProductDropdown(response.urls);
+                            break;
+                    }
+                },
+                error: function() {
+                    console.error('Error fetching URLs');
+                }
+            });
         }
-
-        // Update hidden textarea with jstree data
-        function updateJsTreeData() {
-            var json = $tree.jstree('get_json');
-            $('textarea[name="jstree_data"]').val(JSON.stringify(json));
+  
+  
+        function populateProductDropdown(products) {
+            $('#urlInput').empty();
+            if (products.length) {
+                $.each(products, function(index, product) {
+                    $('#urlInput').append($('<option></option>')
+                        .attr('value', product.url_key)
+                        .text(product.name + ' (SKU: ' + product.sku + ')'));
+                });
+            } else {
+                $('#urlInput').append($('<option></option>').text('No products found.'));
+            }
         }
+  
+        function populateCategoryDropdown(categories) {
+            $('#urlInput').empty();
+            if (categories.length) {
+                appendCategories(categories, 0);
+            } else {
+                $('#urlInput').append($('<option></option>').text('No categories found.'));
+            }
+        }
+  
+        function appendCategories(categories, level) {
+            $.each(categories, function(index, category) {
+                var indent = '—'.repeat(level);
+                var productCount = category.product_count || 0;
+                $('#urlInput').append($('<option></option>')
+                    .attr('value', category.url_key)
+                    .text(indent + ' ' + category.name + ' (' + productCount + ' products)'));
+  
+                if (category.children && category.children.length > 0) {
+                    appendCategories(category.children, level + 1);
+                }
+            });
+        }
+  
+  
+        function populateCMSPageDropdown(pages) {
+            $('#urlInput').empty();
+            if (pages.length) {
+                $.each(pages, function(index, page) {
+                    $('#urlInput').append($('<option></option>')
+                        .attr('value', page.identifier)
+                        .text(page.title + ' (' + page.identifier + ')'));
+                });
+            } else {
+                $('#urlInput').append($('<option></option>').text('No CMS pages found.'));
+            }
+        }
+  
+        $('#product_search_input').on('keyup', function() {
+            fetchURLs('product');
+        });
+  
+        $('#category_search_input').on('keyup', function() {
+            fetchURLs('category');
+        });
+  
+        $('#cms_search_input').on('keyup', function() {
+            fetchURLs('cms_page');
+        });
+  
+        
+  
+        $('#save_url').on('click', function() {
+    var nodeName = $('#node_name').val();
+    var urlType = $('#url_select').val();
+    var selectedUrl = $('#urlInput').val();
+  
+    if (selectedNode) {
+        selectedNode.data.name = nodeName;
+        selectedNode.data.url_type = urlType;
+        selectedNode.data.url = selectedUrl;
+        selectedNode.text = nodeName + ' <button class="add-child-btn">Add Sub Menu</button> <button class="edit-node-btn">Edit</button>';
+        $tree.jstree('rename_node', selectedNode, selectedNode.text);
+    }
+    updateJsTreeData();
+  
+    console.log('Updated Tree Data:', JSON.stringify($tree.jstree(true).get_json('#', {flat: false}), null, 2));
+  
+    closeModal();
+  });
+  
+  
+  $tree.on('move_node.jstree', function(e, data) {
+    updateJsTreeData();
+  
+    console.log('Updated Tree Data after move:', JSON.stringify($tree.jstree(true).get_json('#', {flat: false}), null, 2));
+  });
+  
+  
+  
+        
 
-        // Function to open modal
         function openModal() {
             $modal.modal('openModal');
         }
-
-        // Function to close modal
+  
         function closeModal() {
             $modal.modal('closeModal');
         }
+  
+        function updateJsTreeData() {
+            var jsonData = $tree.jstree('get_json');
+            $('textarea[name="jstree_data"]').val(JSON.stringify(jsonData));
+        }
     });
-});
+  });
 </script>

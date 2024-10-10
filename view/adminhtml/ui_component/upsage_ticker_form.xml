@@ -86,19 +86,14 @@
     </block>
 </htmlContent>
 
-<field name="jstree_data">
-    <argument name="data" xsi:type="array">
-        <item name="config" xsi:type="array">
-            <item name="dataType" xsi:type="string">text</item>
-            <item name="label" xsi:type="string" translate="true">JsTree Data</item>
-            <item name="formElement" xsi:type="string">textarea</item>
-            <item name="source" xsi:type="string">main_fieldset</item>
-            <item name="dataScope" xsi:type="string">jstree_data</item>
-            <item name="visible" xsi:type="boolean">false</item>
-        </item>
-    </argument>
-</field>
-
+<!-- <field name="url_input_example">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="urlTypes" xsi:type="object">Magento\Ui\Model\UrlInput\LinksConfigProvider</item>
+                     <item name="formElement" xsi:type="string">urlInput </item>
+                </item>
+            </argument>
+        </field> -->
         
         <field name="content">
             <argument name="data" xsi:type="array">
